@@ -20,11 +20,13 @@ type UtopiaClient struct {
 	port int
 }
 
-//type UtopiaClientInterface interface {
-//	apiQuery() string
-//}
+type UtopiaClientInterface interface {
+	apiQuery(methodName string) map[string]interface{}
+	GetProfileStatus() map[string]interface{}
+	GetSystemInfo() map[string]interface{}
+}
 
-func (c UtopiaClient) apiQuery(methodName string) string {
+func (c UtopiaClient) apiQuery(methodName string) map[string]interface{} {
 	url := c.protocol + "://" + c.host + ":" + strconv.Itoa(c.port) + "/api/1.0/"
 	//fmt.Println(url) //debug
 
@@ -54,8 +56,22 @@ func (c UtopiaClient) apiQuery(methodName string) string {
     //fmt.Println("response Status:", resp.Status)
     //fmt.Println("response Headers:", resp.Header)
     body, _ := ioutil.ReadAll(resp.Body)
+    var responseMap map[string]interface{}
     //fmt.Println("response Body:", string(body))
-    return string(body)
+    //return string(body)
+
+    //TODO: check json
+
+    json.Unmarshal([]byte(body), &responseMap)
+    return responseMap
+}
+
+func (c UtopiaClient) GetProfileStatus() map[string]interface{} {
+	return c.apiQuery("getProfileStatus")
+}
+
+func (c UtopiaClient) GetSystemInfo() map[string]interface{} {
+	return c.apiQuery("getSystemInfo")
 }
 
 func main() {
