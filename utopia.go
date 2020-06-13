@@ -13,6 +13,7 @@ import (
 type Query struct {
 	Method string `json:"method"`
 	Token string  `json:"token"`
+	Params map[string]string `json:"params"`
 }
 
 type UtopiaClient struct {
@@ -26,7 +27,7 @@ type UtopiaClientInterface interface {
 	GetSystemInfo() map[string]interface{}
 }
 
-func (c UtopiaClient) apiQuery(methodName string) map[string]interface{} {
+func (c UtopiaClient) apiQuery(methodName string, params map[string]string) map[string]interface{} {
 	url := c.protocol + "://" + c.host + ":" + strconv.Itoa(c.port) + "/api/1.0/"
 	//fmt.Println(url) //debug
 
@@ -34,6 +35,10 @@ func (c UtopiaClient) apiQuery(methodName string) map[string]interface{} {
 		Method: methodName,
 		Token: c.token,
 	}
+	if params != nil {
+		query.Params = params
+	}
+
 	//var jsonStr = []byte(`{"token":"test"}`)
 	var jsonStr, err = json.Marshal(query)
 	if err != nil {
@@ -67,11 +72,18 @@ func (c UtopiaClient) apiQuery(methodName string) map[string]interface{} {
 }
 
 func (c UtopiaClient) GetProfileStatus() map[string]interface{} {
-	return c.apiQuery("getProfileStatus")
+	return c.apiQuery("getProfileStatus", nil)
 }
 
 func (c UtopiaClient) GetSystemInfo() map[string]interface{} {
-	return c.apiQuery("getSystemInfo")
+	return c.apiQuery("getSystemInfo", nil)
+}
+
+func (c UtopiaClient) SetProfileStatus(status string, mood string) map[string]interface{} {
+	queryMap := make(map[string]string)
+	queryMap["status"] = status
+	queryMap["mood"] = mood
+	return c.apiQuery("setProfileStatus", queryMap)
 }
 
 func main() {
@@ -82,5 +94,5 @@ func main() {
 		port:     22791,
 	}
 
-	fmt.Println(client.apiQuery("getSystemInfo"))
+	fmt.Println(client.GetSystemInfo())
 }
