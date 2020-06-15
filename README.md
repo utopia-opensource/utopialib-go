@@ -3,6 +3,19 @@
 
 Utopia Ecosystem API wrapper written in Golang
 
+Install
+-----
+
+```bash
+go get github.com/Sagleft/utopialib-go
+```
+
+or
+
+```go
+import "github.com/Sagleft/utopialib-go"
+```
+
 Usage
 -----
 
