@@ -102,7 +102,7 @@ func (c UtopiaClient) SetProfileStatus(status string, mood string) bool {
 }
 
 func (c UtopiaClient) GetOwnContact() map[string]interface{} {
-	return response map[string]interface{} = c.apiQuery("getOwnContact", nil)
+	return c.apiQuery("getOwnContact", nil)
 }
 
 //func main() {
