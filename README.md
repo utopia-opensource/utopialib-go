@@ -7,7 +7,7 @@ Usage
 -----
 
 ```go
-client := UtopiaClient{
+client := utopiago.UtopiaClient{
 	protocol: "http",
 	token:    "C17BF2E95821A6B545DC9A193CBB750B",
 	host:     "127.0.0.1",
