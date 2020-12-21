@@ -6,7 +6,8 @@ Utopia Ecosystem API wrapper written in Golang
 Docs
 -----
 
-[Docs available at godoc](https://godoc.org/gopkg.in/sagleft/utopialib-go.v1)
+[![GoDoc](https://godoc.org/github.com/sagleft/utopialib-go?status.svg)](https://godoc.org/gopkg.in/sagleft/utopialib-go.v1)
+[![Build Status](https://travis-ci.org/sagleft/utopialib-go.svg?branch=master)](https://travis-ci.org/sagleft/utopialib-go)
 
 Install
 -----
