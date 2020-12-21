@@ -35,3 +35,12 @@ client := utopiago.UtopiaClient{
 
 fmt.Println(client.GetSystemInfo())
 ```
+
+How can this be used?
+-----
+
+* creating a web service that processes client requests;
+* creation of a payment service;
+* development of a bot for the channel;
+* utility for working with uNS;
+* experiments to explore web3.0;
