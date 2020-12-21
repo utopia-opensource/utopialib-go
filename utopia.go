@@ -2,26 +2,30 @@ package utopiago
 
 import (
 	//"encoding/json"
-    "fmt"
-    "net/http"
-    "bytes"
-    "io/ioutil"
-    "strconv"
-    "encoding/json"
-    "gopkg.in/grignaak/tribool.v1"
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strconv"
+
+	"gopkg.in/grignaak/tribool.v1"
 )
 
+//Query is a filter for API requests
 type Query struct {
-	Method string `json:"method"`
-	Token string  `json:"token"`
+	Method string            `json:"method"`
+	Token  string            `json:"token"`
 	Params map[string]string `json:"params"`
 }
 
+//UtopiaClient lets you connect to Utopia Client
 type UtopiaClient struct {
 	protocol, host, token string
-	port int
+	port                  int
 }
 
+//UtopiaClientInterface contains an enumeration of methods
 type UtopiaClientInterface interface {
 	apiQuery(methodName string) map[string]interface{}
 	GetProfileStatus() map[string]interface{}
@@ -35,7 +39,7 @@ func (c UtopiaClient) apiQuery(methodName string, params map[string]string) map[
 
 	var query = Query{
 		Method: methodName,
-		Token: c.token,
+		Token:  c.token,
 	}
 	if params != nil {
 		query.Params = params
@@ -44,39 +48,41 @@ func (c UtopiaClient) apiQuery(methodName string, params map[string]string) map[
 	//var jsonStr = []byte(`{"token":"test"}`)
 	var jsonStr, err = json.Marshal(query)
 	if err != nil {
-        panic(err)
-    }
-    //fmt.Println(jsonStr)
-    //var jsonStr = []byte(json)
+		panic(err)
+	}
+	//fmt.Println(jsonStr)
+	//var jsonStr = []byte(json)
 
-    req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
-    //req.Header.Set("X-Custom-Header", "myvalue")
-    req.Header.Set("Content-Type", "application/json")
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
+	//req.Header.Set("X-Custom-Header", "myvalue")
+	req.Header.Set("Content-Type", "application/json")
 
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        panic(err)
-    }
-    defer resp.Body.Close()
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
 
-    //fmt.Println("response Status:", resp.Status)
-    //fmt.Println("response Headers:", resp.Header)
-    body, _ := ioutil.ReadAll(resp.Body)
-    var responseMap map[string]interface{}
-    //fmt.Println("response Body:", string(body))
-    //return string(body)
+	//fmt.Println("response Status:", resp.Status)
+	//fmt.Println("response Headers:", resp.Header)
+	body, _ := ioutil.ReadAll(resp.Body)
+	var responseMap map[string]interface{}
+	//fmt.Println("response Body:", string(body))
+	//return string(body)
 
-    //TODO: check json
+	//TODO: check json
 
-    json.Unmarshal([]byte(body), &responseMap)
-    return responseMap
+	json.Unmarshal([]byte(body), &responseMap)
+	return responseMap
 }
 
+//GetProfileStatus gets data about the status of the current account
 func (c UtopiaClient) GetProfileStatus() map[string]interface{} {
 	return c.apiQuery("getProfileStatus", nil)
 }
 
+//GetSystemInfo retrieves client system information
 func (c UtopiaClient) GetSystemInfo() map[string]interface{} {
 	return c.apiQuery("getSystemInfo", nil)
 }
@@ -93,6 +99,7 @@ func (c UtopiaClient) queryResultToBool(methodName string, params map[string]str
 	return result
 }
 
+//SetProfileStatus updates data about the status of the current account
 func (c UtopiaClient) SetProfileStatus(status string, mood string) bool {
 	queryMap := make(map[string]string)
 	queryMap["status"] = status
@@ -101,18 +108,7 @@ func (c UtopiaClient) SetProfileStatus(status string, mood string) bool {
 	return c.queryResultToBool("setProfileStatus", queryMap)
 }
 
+//GetOwnContact asks for full details of the current account
 func (c UtopiaClient) GetOwnContact() map[string]interface{} {
 	return c.apiQuery("getOwnContact", nil)
 }
-
-//func main() {
-//	client := UtopiaClient{
-//		protocol: "http",
-//		token:    "C17BF2E95821A6B545DC9A193CBB750B",
-//		host:     "127.0.0.1",
-//		port:     22791,
-//	}
-//
-//	fmt.Println(client.GetSystemInfo())
-//	fmt.Println(client.SetProfileStatus("Available", "test mood"))
-//}
