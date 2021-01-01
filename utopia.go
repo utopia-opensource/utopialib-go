@@ -99,6 +99,18 @@ func (c *UtopiaClient) queryResultToInterface(methodName string, params map[stri
 	return nil, errors.New("result field doesn't exists in client response")
 }
 
+func (c *UtopiaClient) queryResultToInterfaceArray(methodName string, params map[string]interface{}) ([]interface{}, error) {
+	if !c.CheckClientConnection() {
+		return nil, errors.New("client disconected")
+	}
+	response, err := c.apiQuery(methodName, params)
+	if result, ok := response["result"]; ok {
+		//TODO: check type assertion
+		return result.([]interface{}), err
+	}
+	return nil, errors.New("accaptable result doesn't exists in client response")
+}
+
 func (c *UtopiaClient) queryResultToString(methodName string, params map[string]interface{}) (string, error) {
 	if !c.CheckClientConnection() {
 		return "", errors.New("client disconected")
@@ -166,16 +178,20 @@ func (c *UtopiaClient) CheckClientConnection() bool {
 }
 
 //UseVoucher - uses the voucher and returns an error on failure
-func (c *UtopiaClient) UseVoucher(voucherID string) (int64, error) {
+func (c *UtopiaClient) UseVoucher(voucherID string) (string, error) {
 	params := map[string]interface{}{
 		"voucherid": voucherID,
 	}
-	return c.queryResultToInt("useVoucher", params)
+	return c.queryResultToString("useVoucher", params)
 }
 
 //GetFinanceHistory request the necessary financial statistics
-func (c *UtopiaClient) GetFinanceHistory() (interface{}, error) {
-	return c.queryResultToInterface("getFinanceSystemInformation", nil)
+func (c *UtopiaClient) GetFinanceHistory(filters string, referenceNumber string) ([]interface{}, error) {
+	params := map[string]interface{}{
+		"filters":         filters,
+		"referenceNumber": referenceNumber,
+	}
+	return c.queryResultToInterfaceArray("getFinanceSystemInformation", params)
 }
 
 //GetBalance request account Crypton balance
@@ -187,17 +203,17 @@ func (c *UtopiaClient) GetBalance() (float64, error) {
 	return result, nil
 }
 
-//CreateVoucher requests the creation of a new voucher
-func (c *UtopiaClient) CreateVoucher(amount float64) error {
+//CreateVoucher requests the creation of a new voucher. it returns referenceNumber
+func (c *UtopiaClient) CreateVoucher(amount float64) (string, error) {
 	params := map[string]interface{}{
 		"amount": amount,
 	}
 	result, err := c.queryResultToString("createVoucher", params)
 	if err != nil {
-		return err
+		return "", err
 	}
-	if result != "" {
-		return errors.New("failed to create voucher, empty string in client response")
+	if result == "" {
+		return "", errors.New("failed to create voucher, empty string in client response")
 	}
-	return nil
+	return result, nil
 }
