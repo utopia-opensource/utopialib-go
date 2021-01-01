@@ -21,8 +21,8 @@ type Query struct {
 
 //UtopiaClient lets you connect to Utopia Client
 type UtopiaClient struct {
-	protocol, host, token string
-	port                  int
+	Protocol, Host, Token string
+	Port                  int
 }
 
 //UtopiaClientInterface contains an enumeration of methods
@@ -41,10 +41,10 @@ type UtopiaClientInterface interface {
 }
 
 func (c *UtopiaClient) apiQuery(methodName string, params map[string]string) map[string]interface{} {
-	url := c.protocol + "://" + c.host + ":" + strconv.Itoa(c.port) + "/api/1.0/"
+	url := c.Protocol + "://" + c.Host + ":" + strconv.Itoa(c.Port) + "/api/1.0/"
 	var query = Query{
 		Method: methodName,
-		Token:  c.token,
+		Token:  c.Token,
 	}
 	if params != nil {
 		query.Params = params
