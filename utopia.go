@@ -68,9 +68,12 @@ func (c UtopiaClient) apiQuery(methodName string, params map[string]string) map[
 	body, _ := ioutil.ReadAll(resp.Body)
 	var responseMap map[string]interface{}
 
-	//TODO: check json
+	if !json.Valid(body) {
+		//TODO: return error
+		return responseMap
+	}
 
-	json.Unmarshal([]byte(body), &responseMap)
+	json.Unmarshal(body, &responseMap)
 	return responseMap
 }
 
