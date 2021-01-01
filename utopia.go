@@ -123,8 +123,11 @@ func (c *UtopiaClient) GetOwnContact() (map[string]interface{}, error) {
 
 //CheckClientConnection - checks if there are any errors when contacting the client
 func (c *UtopiaClient) CheckClientConnection() bool {
-	//TODO
-	return false
+	_, err := c.GetSystemInfo()
+	if err != nil {
+		return false
+	}
+	return true
 }
 
 //UseVoucher - uses the voucher and returns an error on failure
