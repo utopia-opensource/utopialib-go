@@ -42,8 +42,6 @@ type UtopiaClientInterface interface {
 
 func (c UtopiaClient) apiQuery(methodName string, params map[string]string) map[string]interface{} {
 	url := c.protocol + "://" + c.host + ":" + strconv.Itoa(c.port) + "/api/1.0/"
-	//fmt.Println(url) //debug
-
 	var query = Query{
 		Method: methodName,
 		Token:  c.token,
@@ -52,16 +50,12 @@ func (c UtopiaClient) apiQuery(methodName string, params map[string]string) map[
 		query.Params = params
 	}
 
-	//var jsonStr = []byte(`{"token":"test"}`)
 	var jsonStr, err = json.Marshal(query)
 	if err != nil {
 		panic(err)
 	}
-	//fmt.Println(jsonStr)
-	//var jsonStr = []byte(json)
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
-	//req.Header.Set("X-Custom-Header", "myvalue")
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
@@ -71,12 +65,8 @@ func (c UtopiaClient) apiQuery(methodName string, params map[string]string) map[
 	}
 	defer resp.Body.Close()
 
-	//fmt.Println("response Status:", resp.Status)
-	//fmt.Println("response Headers:", resp.Header)
 	body, _ := ioutil.ReadAll(resp.Body)
 	var responseMap map[string]interface{}
-	//fmt.Println("response Body:", string(body))
-	//return string(body)
 
 	//TODO: check json
 
