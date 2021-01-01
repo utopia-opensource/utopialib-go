@@ -28,9 +28,16 @@ type UtopiaClient struct {
 //UtopiaClientInterface contains an enumeration of methods
 type UtopiaClientInterface interface {
 	apiQuery(methodName string) map[string]interface{}
+
 	GetProfileStatus() map[string]interface{}
 	GetSystemInfo() map[string]interface{}
 	GetOwnContact() map[string]interface{}
+
+	GetBalance() (float64, error)
+	UseVoucher(voucherCode string) error
+	GetFinanceHistory() map[string]interface{}
+	CheckClientConnection() bool
+	CreateVoucher(amount float64) error
 }
 
 func (c UtopiaClient) apiQuery(methodName string, params map[string]string) map[string]interface{} {
