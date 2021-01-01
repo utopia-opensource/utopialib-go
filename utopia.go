@@ -89,15 +89,39 @@ func (c *UtopiaClient) GetSystemInfo() (map[string]interface{}, error) {
 }
 
 func (c *UtopiaClient) queryResultToString(methodName string, params map[string]string) (string, error) {
+	if !c.CheckClientConnection() {
+		return "", errors.New("client disconected")
+	}
 	response, err := c.apiQuery(methodName, params)
-	resultstr := fmt.Sprintf("%v", response["result"])
-	return resultstr, err
+	if result, ok := response["result"]; ok {
+		resultstr := fmt.Sprintf("%v", result)
+		return resultstr, err
+	}
+	return "", errors.New("result field doesn't exists in client response")
 }
 
 func (c *UtopiaClient) queryResultToBool(methodName string, params map[string]string) (bool, error) {
 	resultstr, err := c.queryResultToString(methodName, params)
 	resultBool := tribool.FromString(resultstr).WithMaybeAsTrue()
 	return resultBool, err
+}
+
+func (c *UtopiaClient) queryResultToFloat64(methodName string, params map[string]string) (float64, error) {
+	resultstr, err := c.queryResultToString(methodName, params)
+	if err != nil {
+		return 0, err
+	}
+	resultFloat, err := strconv.ParseFloat(resultstr, 64)
+	return resultFloat, err
+}
+
+func (c *UtopiaClient) queryResultToInt(methodName string, params map[string]string) (int64, error) {
+	resultstr, err := c.queryResultToString(methodName, params)
+	if err != nil {
+		return 0, err
+	}
+	result, err := strconv.ParseInt(resultstr, 10, 64)
+	return result, err
 }
 
 //SetProfileStatus updates data about the status of the current account
@@ -145,8 +169,11 @@ func (c *UtopiaClient) GetFinanceHistory() map[string]interface{} {
 
 //GetBalance request account Crypton balance
 func (c *UtopiaClient) GetBalance() (float64, error) {
-	//TODO
-	return 0, nil
+	result, err := c.queryResultToFloat64("getBalance", nil)
+	if err != nil {
+		return 0, err
+	}
+	return result, nil
 }
 
 //CreateVoucher requests the creation of a new voucher
