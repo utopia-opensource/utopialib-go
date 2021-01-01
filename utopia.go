@@ -15,9 +15,9 @@ import (
 
 //Query is a filter for API requests
 type Query struct {
-	Method string            `json:"method"`
-	Token  string            `json:"token"`
-	Params map[string]string `json:"params"`
+	Method string                 `json:"method"`
+	Token  string                 `json:"token"`
+	Params map[string]interface{} `json:"params"`
 }
 
 //UtopiaClient lets you connect to Utopia Client
@@ -41,7 +41,7 @@ type UtopiaClientInterface interface {
 	CreateVoucher(amount float64) error
 }
 
-func (c *UtopiaClient) apiQuery(methodName string, params map[string]string) (map[string]interface{}, error) {
+func (c *UtopiaClient) apiQuery(methodName string, params map[string]interface{}) (map[string]interface{}, error) {
 	var responseMap map[string]interface{}
 	url := c.Protocol + "://" + c.Host + ":" + strconv.Itoa(c.Port) + "/api/1.0/"
 	var query = Query{
@@ -88,7 +88,18 @@ func (c *UtopiaClient) GetSystemInfo() (map[string]interface{}, error) {
 	return c.apiQuery("getSystemInfo", nil)
 }
 
-func (c *UtopiaClient) queryResultToString(methodName string, params map[string]string) (string, error) {
+func (c *UtopiaClient) queryResultToInterface(methodName string, params map[string]interface{}) (interface{}, error) {
+	if !c.CheckClientConnection() {
+		return nil, errors.New("client disconected")
+	}
+	response, err := c.apiQuery(methodName, params)
+	if result, ok := response["result"]; ok {
+		return result, err
+	}
+	return nil, errors.New("result field doesn't exists in client response")
+}
+
+func (c *UtopiaClient) queryResultToString(methodName string, params map[string]interface{}) (string, error) {
 	if !c.CheckClientConnection() {
 		return "", errors.New("client disconected")
 	}
@@ -100,13 +111,13 @@ func (c *UtopiaClient) queryResultToString(methodName string, params map[string]
 	return "", errors.New("result field doesn't exists in client response")
 }
 
-func (c *UtopiaClient) queryResultToBool(methodName string, params map[string]string) (bool, error) {
+func (c *UtopiaClient) queryResultToBool(methodName string, params map[string]interface{}) (bool, error) {
 	resultstr, err := c.queryResultToString(methodName, params)
 	resultBool := tribool.FromString(resultstr).WithMaybeAsTrue()
 	return resultBool, err
 }
 
-func (c *UtopiaClient) queryResultToFloat64(methodName string, params map[string]string) (float64, error) {
+func (c *UtopiaClient) queryResultToFloat64(methodName string, params map[string]interface{}) (float64, error) {
 	resultstr, err := c.queryResultToString(methodName, params)
 	if err != nil {
 		return 0, err
@@ -115,7 +126,7 @@ func (c *UtopiaClient) queryResultToFloat64(methodName string, params map[string
 	return resultFloat, err
 }
 
-func (c *UtopiaClient) queryResultToInt(methodName string, params map[string]string) (int64, error) {
+func (c *UtopiaClient) queryResultToInt(methodName string, params map[string]interface{}) (int64, error) {
 	resultstr, err := c.queryResultToString(methodName, params)
 	if err != nil {
 		return 0, err
@@ -126,7 +137,7 @@ func (c *UtopiaClient) queryResultToInt(methodName string, params map[string]str
 
 //SetProfileStatus updates data about the status of the current account
 func (c *UtopiaClient) SetProfileStatus(status string, mood string) error {
-	queryMap := make(map[string]string)
+	queryMap := make(map[string]interface{})
 	queryMap["status"] = status
 	queryMap["mood"] = mood
 
@@ -155,16 +166,17 @@ func (c *UtopiaClient) CheckClientConnection() bool {
 }
 
 //UseVoucher - uses the voucher and returns an error on failure
-func (c *UtopiaClient) UseVoucher() error {
-	//TODO
-	return nil
+func (c *UtopiaClient) UseVoucher(voucherID string) error {
+	params := map[string]interface{}{
+		"voucherid": voucherID,
+	}
+	_, err := c.queryResultToString("useVoucher", params)
+	return err
 }
 
 //GetFinanceHistory request the necessary financial statistics
-func (c *UtopiaClient) GetFinanceHistory() map[string]interface{} {
-	//TODO
-	//TODO: handle error
-	return make(map[string]interface{})
+func (c *UtopiaClient) GetFinanceHistory() (interface{}, error) {
+	return c.queryResultToInterface("getFinanceSystemInformation", nil)
 }
 
 //GetBalance request account Crypton balance
@@ -178,6 +190,15 @@ func (c *UtopiaClient) GetBalance() (float64, error) {
 
 //CreateVoucher requests the creation of a new voucher
 func (c *UtopiaClient) CreateVoucher(amount float64) error {
-	//TODO
+	params := map[string]interface{}{
+		"amount": amount,
+	}
+	result, err := c.queryResultToString("createVoucher", params)
+	if err != nil {
+		return err
+	}
+	if result != "" {
+		return errors.New("failed to create voucher, empty string in client response")
+	}
 	return nil
 }
