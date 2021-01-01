@@ -166,12 +166,11 @@ func (c *UtopiaClient) CheckClientConnection() bool {
 }
 
 //UseVoucher - uses the voucher and returns an error on failure
-func (c *UtopiaClient) UseVoucher(voucherID string) error {
+func (c *UtopiaClient) UseVoucher(voucherID string) (int64, error) {
 	params := map[string]interface{}{
 		"voucherid": voucherID,
 	}
-	_, err := c.queryResultToString("useVoucher", params)
-	return err
+	return c.queryResultToInt("useVoucher", params)
 }
 
 //GetFinanceHistory request the necessary financial statistics
