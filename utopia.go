@@ -112,3 +112,34 @@ func (c *UtopiaClient) SetProfileStatus(status string, mood string) bool {
 func (c *UtopiaClient) GetOwnContact() map[string]interface{} {
 	return c.apiQuery("getOwnContact", nil)
 }
+
+//CheckClientConnection - checks if there are any errors when contacting the client
+func (c *UtopiaClient) CheckClientConnection() bool {
+	//TODO
+	return false
+}
+
+//UseVoucher - uses the voucher and returns an error on failure
+func (c *UtopiaClient) UseVoucher() error {
+	//TODO
+	return nil
+}
+
+//GetFinanceHistory request the necessary financial statistics
+func (c *UtopiaClient) GetFinanceHistory() map[string]interface{} {
+	//TODO
+	//TODO: handle error
+	return make(map[string]interface{})
+}
+
+//GetBalance request account Crypton balance
+func (c *UtopiaClient) GetBalance() (float64, error) {
+	//TODO
+	return 0, nil
+}
+
+//CreateVoucher requests the creation of a new voucher
+func (c *UtopiaClient) CreateVoucher(amount float64) error {
+	//TODO
+	return nil
+}
