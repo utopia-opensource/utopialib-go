@@ -7,6 +7,7 @@ Docs
 -----
 
 [![GoDoc](https://godoc.org/github.com/sagleft/utopialib-go?status.svg)](https://godoc.org/gopkg.in/sagleft/utopialib-go.v1)
+[![go-report](https://goreportcard.com/badge/github.com/Sagleft/utopialib-go)](https://goreportcard.com/report/github.com/Sagleft/utopialib-go)
 [![Build Status](https://travis-ci.org/sagleft/utopialib-go.svg?branch=master)](https://travis-ci.org/sagleft/utopialib-go)
 
 Install
