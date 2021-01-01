@@ -40,7 +40,7 @@ type UtopiaClientInterface interface {
 	CreateVoucher(amount float64) error
 }
 
-func (c UtopiaClient) apiQuery(methodName string, params map[string]string) map[string]interface{} {
+func (c *UtopiaClient) apiQuery(methodName string, params map[string]string) map[string]interface{} {
 	url := c.protocol + "://" + c.host + ":" + strconv.Itoa(c.port) + "/api/1.0/"
 	var query = Query{
 		Method: methodName,
@@ -78,29 +78,29 @@ func (c UtopiaClient) apiQuery(methodName string, params map[string]string) map[
 }
 
 //GetProfileStatus gets data about the status of the current account
-func (c UtopiaClient) GetProfileStatus() map[string]interface{} {
+func (c *UtopiaClient) GetProfileStatus() map[string]interface{} {
 	return c.apiQuery("getProfileStatus", nil)
 }
 
 //GetSystemInfo retrieves client system information
-func (c UtopiaClient) GetSystemInfo() map[string]interface{} {
+func (c *UtopiaClient) GetSystemInfo() map[string]interface{} {
 	return c.apiQuery("getSystemInfo", nil)
 }
 
-func (c UtopiaClient) queryResultToString(methodName string, params map[string]string) string {
+func (c *UtopiaClient) queryResultToString(methodName string, params map[string]string) string {
 	var response map[string]interface{} = c.apiQuery(methodName, params)
 	var resultstr string = fmt.Sprintf("%v", response["result"])
 	return resultstr
 }
 
-func (c UtopiaClient) queryResultToBool(methodName string, params map[string]string) bool {
+func (c *UtopiaClient) queryResultToBool(methodName string, params map[string]string) bool {
 	var resultstr string = c.queryResultToString(methodName, params)
 	var result bool = tribool.FromString(resultstr).WithMaybeAsTrue()
 	return result
 }
 
 //SetProfileStatus updates data about the status of the current account
-func (c UtopiaClient) SetProfileStatus(status string, mood string) bool {
+func (c *UtopiaClient) SetProfileStatus(status string, mood string) bool {
 	queryMap := make(map[string]string)
 	queryMap["status"] = status
 	queryMap["mood"] = mood
@@ -109,6 +109,6 @@ func (c UtopiaClient) SetProfileStatus(status string, mood string) bool {
 }
 
 //GetOwnContact asks for full details of the current account
-func (c UtopiaClient) GetOwnContact() map[string]interface{} {
+func (c *UtopiaClient) GetOwnContact() map[string]interface{} {
 	return c.apiQuery("getOwnContact", nil)
 }
