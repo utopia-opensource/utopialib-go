@@ -4,6 +4,7 @@ import (
 	//"encoding/json"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -40,7 +41,8 @@ type UtopiaClientInterface interface {
 	CreateVoucher(amount float64) error
 }
 
-func (c *UtopiaClient) apiQuery(methodName string, params map[string]string) map[string]interface{} {
+func (c *UtopiaClient) apiQuery(methodName string, params map[string]string) (map[string]interface{}, error) {
+	var responseMap map[string]interface{}
 	url := c.Protocol + "://" + c.Host + ":" + strconv.Itoa(c.Port) + "/api/1.0/"
 	var query = Query{
 		Method: methodName,
@@ -52,7 +54,7 @@ func (c *UtopiaClient) apiQuery(methodName string, params map[string]string) map
 
 	var jsonStr, err = json.Marshal(query)
 	if err != nil {
-		panic(err)
+		return responseMap, err
 	}
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
@@ -61,55 +63,61 @@ func (c *UtopiaClient) apiQuery(methodName string, params map[string]string) map
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		return responseMap, err
 	}
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
-	var responseMap map[string]interface{}
 
 	if !json.Valid(body) {
 		//TODO: return error
-		return responseMap
+		return responseMap, errors.New("failed to validate json from client")
 	}
 
 	json.Unmarshal(body, &responseMap)
-	return responseMap
+	return responseMap, nil
 }
 
 //GetProfileStatus gets data about the status of the current account
-func (c *UtopiaClient) GetProfileStatus() map[string]interface{} {
+func (c *UtopiaClient) GetProfileStatus() (map[string]interface{}, error) {
 	return c.apiQuery("getProfileStatus", nil)
 }
 
 //GetSystemInfo retrieves client system information
-func (c *UtopiaClient) GetSystemInfo() map[string]interface{} {
+func (c *UtopiaClient) GetSystemInfo() (map[string]interface{}, error) {
 	return c.apiQuery("getSystemInfo", nil)
 }
 
-func (c *UtopiaClient) queryResultToString(methodName string, params map[string]string) string {
-	var response map[string]interface{} = c.apiQuery(methodName, params)
-	var resultstr string = fmt.Sprintf("%v", response["result"])
-	return resultstr
+func (c *UtopiaClient) queryResultToString(methodName string, params map[string]string) (string, error) {
+	response, err := c.apiQuery(methodName, params)
+	resultstr := fmt.Sprintf("%v", response["result"])
+	return resultstr, err
 }
 
-func (c *UtopiaClient) queryResultToBool(methodName string, params map[string]string) bool {
-	var resultstr string = c.queryResultToString(methodName, params)
-	var result bool = tribool.FromString(resultstr).WithMaybeAsTrue()
-	return result
+func (c *UtopiaClient) queryResultToBool(methodName string, params map[string]string) (bool, error) {
+	resultstr, err := c.queryResultToString(methodName, params)
+	resultBool := tribool.FromString(resultstr).WithMaybeAsTrue()
+	return resultBool, err
 }
 
 //SetProfileStatus updates data about the status of the current account
-func (c *UtopiaClient) SetProfileStatus(status string, mood string) bool {
+func (c *UtopiaClient) SetProfileStatus(status string, mood string) error {
 	queryMap := make(map[string]string)
 	queryMap["status"] = status
 	queryMap["mood"] = mood
 
-	return c.queryResultToBool("setProfileStatus", queryMap)
+	result, err := c.queryResultToBool("setProfileStatus", queryMap)
+	if err != nil {
+		return err
+	}
+	if result == false {
+		return errors.New("failed to set profile status")
+	}
+	return nil
 }
 
 //GetOwnContact asks for full details of the current account
-func (c *UtopiaClient) GetOwnContact() map[string]interface{} {
+func (c *UtopiaClient) GetOwnContact() (map[string]interface{}, error) {
 	return c.apiQuery("getOwnContact", nil)
 }
 
