@@ -20,7 +20,7 @@ go get gopkg.in/sagleft/utopialib-go.v2
 or
 
 ```go
-import "go get gopkg.in/sagleft/utopialib-go.v2"
+import "gopkg.in/sagleft/utopialib-go.v2"
 ```
 
 Usage
