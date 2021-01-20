@@ -217,3 +217,32 @@ func (c *UtopiaClient) CreateVoucher(amount float64) (string, error) {
 	}
 	return result, nil
 }
+
+//SetWebSocketState - set WSS Notification state
+func (c *UtopiaClient) SetWebSocketState(enabled bool, port int) error {
+	var enabledStr string = "0"
+	if enabled {
+		enabledStr = "1"
+	}
+	params := map[string]interface{}{
+		"enabled": enabledStr,
+		"port":    port,
+	}
+	result, err := c.queryResultToString("setWebSocketState", params)
+	if err != nil {
+		return err
+	}
+	if result == "" {
+		return errors.New("failed to set websocker state")
+	}
+	return nil
+}
+
+//GetWebSocketState - returns WSS Notifications state, 0 - disabled or active listening port number.
+func (c *UtopiaClient) GetWebSocketState() (int64, error) {
+	result, err := c.queryResultToInt("getWebSocketState", nil)
+	if err != nil {
+		return 0, err
+	}
+	return result, nil
+}
