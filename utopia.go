@@ -1,7 +1,6 @@
 package utopiago
 
 import (
-	//"encoding/json"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -245,4 +244,10 @@ func (c *UtopiaClient) GetWebSocketState() (int64, error) {
 		return 0, err
 	}
 	return result, nil
+}
+
+//ServeWs ..
+func (c *UtopiaClient) ServeWs() error {
+	//TODO
+	return nil
 }
